@@ -1,0 +1,257 @@
+{
+  "raccomandata": [
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "PEC": [
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "comunicazione bancaria": [
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "lettera di diffida": [
+    "mittente",
+    "destinatario",
+    "importo",
+    "scadenza"
+  ],
+  "lettera di messa in mora": [
+    "mittente",
+    "destinatario",
+    "importo",
+    "scadenza"
+  ],
+  "lettera di ingiunzione": [
+    "mittente",
+    "destinatario",
+    "importo",
+    "scadenza"
+  ],
+  "proposta di transazione": [
+    "mittente",
+    "destinatario",
+    "importo"
+  ],
+  "piano di rientro": [
+    "importo",
+    "scadenza"
+  ],
+  "accordo stragiudiziale": [
+    "mittente",
+    "destinatario",
+    "importo"
+  ],
+  "saldo e stralcio": [
+    "mittente",
+    "destinatario",
+    "importo"
+  ],
+  "ricorso per decreto ingiuntivo": [
+    "importo",
+    "tribunale",
+    "numero_rg",
+    "destinatario"
+  ],
+  "decreto ingiuntivo": [
+    "numero_decreto",
+    "importo",
+    "tribunale",
+    "destinatario"
+  ],
+  "decreto ingiuntivo provvisoriamente esecutivo": [
+    "numero_decreto",
+    "importo",
+    "tribunale",
+    "destinatario"
+  ],
+  "opposizione a decreto ingiuntivo": [
+    "numero_decreto",
+    "tribunale",
+    "numero_rg",
+    "mittente"
+  ],
+  "atto di precetto": [
+    "importo",
+    "scadenza",
+    "mittente",
+    "destinatario"
+  ],
+  "pignoramento immobiliare": [
+    "importo",
+    "tribunale",
+    "numero_rg",
+    "destinatario"
+  ],
+  "pignoramento mobiliare": [
+    "importo",
+    "tribunale",
+    "numero_rg",
+    "destinatario"
+  ],
+  "pignoramento presso terzi": [
+    "importo",
+    "mittente",
+    "destinatario"
+  ],
+  "ordinanza di vendita": [
+    "tribunale",
+    "numero_rg",
+    "importo",
+    "destinatario"
+  ],
+  "avviso di vendita": [
+    "tribunale",
+    "importo"
+  ],
+  "istanza di vendita": [
+    "tribunale",
+    "numero_rg"
+  ],
+  "perizia di stima": [
+    "importo",
+    "tribunale"
+  ],
+  "istanza di fallimento": [
+    "tribunale",
+    "numero_rg",
+    "destinatario"
+  ],
+  "sentenza dichiarativa di fallimento": [
+    "tribunale",
+    "numero_rg",
+    "destinatario"
+  ],
+  "domanda di ammissione al passivo": [
+    "importo",
+    "tribunale"
+  ],
+  "piano di concordato preventivo": [
+    "importo",
+    "tribunale"
+  ],
+  "accordo di ristrutturazione debiti": [
+    "importo"
+  ],
+  "atto di citazione": [
+    "tribunale",
+    "importo",
+    "mittente",
+    "destinatario",
+    "numero_rg"
+  ],
+  "comparsa di risposta": [
+    "tribunale",
+    "numero_rg"
+  ],
+  "sentenza": [
+    "tribunale",
+    "numero_rg",
+    "importo"
+  ],
+  "ordinanza": [
+    "tribunale",
+    "numero_rg"
+  ],
+  "verbale di udienza": [
+    "tribunale",
+    "numero_rg"
+  ],
+  "decreto": [
+    "tribunale",
+    "numero_rg"
+  ],
+  "ricorso": [
+    "tribunale",
+    "importo",
+    "numero_rg"
+  ],
+  "atto costitutivo di ipoteca": [
+    "importo",
+    "destinatario"
+  ],
+  "cancellazione di ipoteca": [
+    "destinatario"
+  ],
+  "visura ipotecaria": [],
+  "visura catastale": [],
+  "perizia immobiliare": [
+    "importo"
+  ],
+  "estratto conto bancario": [
+    "importo",
+    "destinatario"
+  ],
+  "estratto conto mutuo": [
+    "importo",
+    "destinatario",
+    "oggetto"
+  ],
+  "piano di ammortamento": [
+    "importo",
+    "destinatario"
+  ],
+  "quietanza di pagamento": [
+    "importo",
+    "destinatario",
+    "mittente"
+  ],
+  "mutuo ipotecario": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "mutuo chirografario": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "mutuo fondiario": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "apertura di credito": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "contratto di leasing": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "contratto di factoring": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "fideiussione": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "cessione del credito": [
+    "importo",
+    "mittente",
+    "destinatario",
+    "oggetto"
+  ],
+  "comunicazione di avvenuta cessione del credito": [
+    "mittente",
+    "importo",
+    "destinatario",
+    "oggetto"
+  ]
+}

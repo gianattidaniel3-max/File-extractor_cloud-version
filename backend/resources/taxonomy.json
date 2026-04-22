@@ -1,0 +1,72 @@
+{
+  "contratti e prestiti": [
+    "mutuo ipotecario",
+    "mutuo chirografario",
+    "mutuo fondiario",
+    "apertura di credito",
+    "contratto di leasing",
+    "contratto di factoring",
+    "fideiussione",
+    "cessione del credito"
+  ],
+  "comunicazioni stragiudiziali": [
+    "lettera di diffida",
+    "lettera di messa in mora",
+    "lettera di ingiunzione",
+    "proposta di transazione",
+    "piano di rientro",
+    "accordo stragiudiziale",
+    "saldo e stralcio",
+    "comunicazione di avvenuta cessione del credito"
+  ],
+  "procedura monitoria": [
+    "ricorso per decreto ingiuntivo",
+    "decreto ingiuntivo",
+    "decreto ingiuntivo provvisoriamente esecutivo",
+    "opposizione a decreto ingiuntivo"
+  ],
+  "esecuzione forzata": [
+    "atto di precetto",
+    "pignoramento immobiliare",
+    "pignoramento mobiliare",
+    "pignoramento presso terzi",
+    "ordinanza di vendita",
+    "avviso di vendita",
+    "perizia di stima",
+    "istanza di vendita"
+  ],
+  "procedure concorsuali": [
+    "istanza di fallimento",
+    "sentenza dichiarativa di fallimento",
+    "domanda di ammissione al passivo",
+    "piano di concordato preventivo",
+    "accordo di ristrutturazione debiti"
+  ],
+  "garanzie e ipoteche": [
+    "atto costitutivo di ipoteca",
+    "cancellazione di ipoteca",
+    "visura ipotecaria",
+    "visura catastale",
+    "perizia immobiliare"
+  ],
+  "atti giudiziari": [
+    "atto di citazione",
+    "comparsa di risposta",
+    "sentenza",
+    "ordinanza",
+    "verbale di udienza",
+    "decreto",
+    "ricorso"
+  ],
+  "documenti bancari e contabili": [
+    "estratto conto bancario",
+    "estratto conto mutuo",
+    "piano di ammortamento",
+    "quietanza di pagamento"
+  ],
+  "corrispondenza": [
+    "PEC",
+    "raccomandata",
+    "comunicazione bancaria"
+  ]
+}

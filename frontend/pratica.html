@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dossier | Cloud Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { 
+            background-color: var(--bg-main); 
+            padding: 2rem; 
+            color: var(--text-main); 
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .vault-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: baseline; 
+            border-bottom: 2px solid var(--color-tan); 
+            padding-bottom: 1rem; 
+            margin-bottom: 1rem; 
+        }
+        .vault-header h1 { 
+            font-size: 2rem; 
+            color: var(--color-olive); 
+            margin: 0; 
+            font-weight: 700;
+        }
+        .vault-header a { 
+            text-decoration: none; 
+            color: var(--color-sage); 
+            font-weight: 600; 
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-sage);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .vault-header a:hover {
+            background-color: var(--color-sage);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="vault-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <h1 id="pratica-title">Caricamento Pratica...</h1>
+            <button id="export-excel-btn" onclick="exportToCSV()" style="background: var(--color-olive); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: none; margin-bottom: 0;">Scarica Excel</button>
+            <button id="full-package-btn" onclick="downloadFullPackage()" style="background: var(--color-tan); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: none; margin-bottom: 0;">📦 Pacchetto Completo</button>
+            <button id="fullscreen-btn" onclick="document.getElementById('master-matrix-container').classList.add('master-matrix-container-fullscreen')" style="background: var(--color-sage); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: background 0.2s; display: none; margin-bottom: 0;">Pieno Schermo</button>
+        </div>
+        <a href="archivio.html">← Torna all'Archivio</a>
+    </div>
+    
+    <div id="loading" style="text-align: center; padding: 4rem; color: var(--color-tan); font-style: italic; font-size: 1.1rem;">
+        Generazione tabella globale in corso sull'infrastruttura Cloud...
+    </div>
+    
+    <div id="master-matrix-container" style="flex: 1; overflow: hidden; background: white; border-radius: 8px; padding: 1.5rem; display: none; flex-direction: column;">
+        <!-- Matrix injected here -->
+    </div>
+
+    <!-- PDF Viewer Modal overlay -->
+    <div id="pdf-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" style="margin: 0; font-size: 1.1rem; letter-spacing: 0.5px;">Visualizzatore Documenti</h3>
+                <button class="modal-close" onclick="closePDFModal()">&times;</button>
+            </div>
+            <div id="modal-body" style="flex: 1; padding: 0.5rem; background: var(--bg-surface);">
+                <!-- iframe injected natively -->
+            </div>
+        </div>
+    </div>
+
+    <script src="pratica.js"></script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud File Extractor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <meta name="description" content="AI-powered tool for extracting and categorizing data from Italian legal documents.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.4">
+</head>
+<body>
+    <header class="app-header">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; width: 100%;">
+            <div>
+                <h1 style="margin-bottom: 0.25rem;">Cloud File Extractor</h1>
+                <p style="margin: 0;">Analisi Automatica di Documenti Legali</p>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button onclick="openSettingsModal()" style="background: transparent; color: var(--color-sage); font-weight: 600; text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--color-sage); border-radius: 6px; cursor: pointer; transition: all 0.2s;">Impostazioni API</button>
+                <a href="archivio.html" style="color: white; background: var(--color-sage); font-weight: 600; text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--color-sage); border-radius: 6px; transition: background 0.2s;">Archivio Pratiche</a>
+            </div>
+    </header>
+
+    <main class="split-view">
+        <!-- Left Panel: Sidebar Modular Full-Width -->
+        <section class="panel left-panel">
+            <!-- Modular: Upload -->
+            <div class="upload-container" id="dropzone">
+                <div class="upload-content">
+                    <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <h2>Carica Documenti</h2>
+                    <p>Trascina PDF o clicca qui</p>
+                    <input type="file" id="file-input" accept="application/pdf" multiple hidden>
+                </div>
+            </div>
+
+            <!-- Modular: Preparazione Batch -->
+            <div class="sidebar-section" id="section-batch" style="display:none;">
+                <div class="section-header" onclick="toggleSidebarSection('section-batch')">
+                    <h3>Anteprima d'analisi</h3>
+                    <span class="section-toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div id="batch-file-list" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem;"></div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label style="font-size: 0.65rem; font-weight: 800; color: var(--color-sage); text-transform: uppercase; margin-bottom: 0.4rem; display: block;">Istruzioni Speciali AI</label>
+                        <textarea id="ai-context-input" placeholder="Es: Focus su clausole penali..." style="width: 100%; height: 50px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.75rem; resize: none;"></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <button id="start-batch-btn" style="background: var(--color-terracotta); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 800; font-size: 0.8rem; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;">Avvia Analisi Totale</button>
+                        <button id="cancel-batch-btn" style="background: transparent; color: var(--color-coral); border: 1px solid var(--color-coral); padding: 0.4rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer;">Annulla</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modular: Tassonomia -->
+            <div class="sidebar-section" id="section-taxonomy">
+                <div class="section-header" onclick="toggleSidebarSection('section-taxonomy')">
+                    <h3>Tassonomia</h3>
+                    <span class="section-toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <div id="schema-tree" style="overflow-y: auto; max-height: 280px;">
+                        <!-- JS Injected Tree -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modular: Cronologia -->
+            <div class="sidebar-section" id="section-history">
+                <div class="section-header" onclick="toggleSidebarSection('section-history')">
+                    <h3>Cronologia</h3>
+                    <span class="section-toggle-icon">▼</span>
+                </div>
+                <div class="section-content">
+                    <ul id="history-list" class="history-list">
+                        <li class="history-empty" style="font-size: 0.75rem; color: var(--color-tan); text-align: center; padding: 2rem 0;">Documenti recenti (vuoto)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel right-panel">
+            <div class="viewer-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <h3 style="margin: 0;">Tabella riassuntiva</h3>
+                    <span id="matrix-title-inject" style="color: var(--color-olive); font-weight: 600; font-size: 0.95rem; border-left: 2px solid var(--color-tan); padding-left: 0.75rem; display: none;"></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="batch-live-status" style="display: none; align-items: center; gap: 0.75rem; background: var(--color-tan); color: white; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; box-shadow: var(--shadow-soft);">
+                        <span class="spinner"></span>
+                        <span id="batch-live-text">Analisi 2/5...</span>
+                    </div>
+                    <div class="column-manager-wrapper" id="col-manager-wrapper">
+                        <button id="col-manager-btn" onclick="toggleColumnManager()" style="background: white; color: var(--color-olive); border: 1px solid var(--color-olive); padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 700; display: none; align-items: center; gap: 0.4rem;">🛠 Gestione Colonne</button>
+                        <div id="col-manager-dropdown" class="column-manager-dropdown">
+                            <div style="font-size: 0.65rem; color: var(--color-tan); text-transform: uppercase; letter-spacing: 1px; font-weight: 800; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">Visibilità Colonne</div>
+                            <div id="col-options-list"></div>
+                        </div>
+                    </div>
+                    <button id="export-excel-btn" onclick="exportToCSV()" style="background: var(--color-olive); color: white; border: none; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 800; display: none; align-items: center; gap: 0.4rem; text-transform: uppercase; letter-spacing: 0.5px;">Scarica Excel</button>
+                    <button id="fullscreen-btn" onclick="document.getElementById('master-matrix-container').classList.add('master-matrix-container-fullscreen')" style="background: var(--color-sage); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: 800; transition: background 0.2s; display: none; text-transform: uppercase;">Pieno Schermo</button>
+                    <span class="badge" style="background: var(--color-sage);">Connesso</span>
+                </div>
+            </div>
+            
+            <div class="viewer-body" style="flex: 1; overflow: hidden; padding: 1.5rem; background-color: var(--bg-surface); position: relative; display: flex; flex-direction: column;">
+                <div id="empty-state" style="color: var(--color-tan); font-size: 0.85rem; font-style: italic; text-align: center; padding-top: 5rem;">In attesa di dati in entrata...</div>
+                <div id="master-matrix-container" style="flex: 1; width: 100%; overflow: hidden; display: flex; flex-direction: column;"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 500px; height: auto;">
+            <div class="modal-header">
+                <h2 id="settings-title" style="margin: 0; font-size: 1.25rem;">Impostazioni Sistema</h2>
+                <button class="modal-close" onclick="closeSettingsModal()">×</button>
+            </div>
+            <div style="padding: 2rem; display: flex; flex-direction: column; gap: 1rem; background: var(--bg-surface);">
+                <div>
+                    <label style="font-weight: 600; color: var(--text-main); display: block; margin-bottom: 0.5rem;">Chiave API OpenAI (Secret Key)</label>
+                    <input type="password" id="api-key-input" placeholder="sk-..." style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: monospace;">
+                    <p id="api-key-status" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-sage);"></p>
+                </div>
+                <button onclick="saveApiKey()" style="background: var(--color-terracotta); color: white; border: none; padding: 0.75rem; border-radius: 6px; font-weight: 600; cursor: pointer; align-self: flex-end;">Salva Chiave</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
+    <div id="pdf-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title" style="margin: 0; font-size: 1.1rem; letter-spacing: 0.5px;">Visualizzatore Documenti</h3>
+                <button class="modal-close" onclick="closePDFModal()">&times;</button>
+            </div>
+            <div id="modal-body" style="flex: 1; padding: 1.5rem; background: var(--bg-surface); position: relative; overflow-y: auto;">
+                <!-- Thumbnail Grid (Splitter) -->
+                <div id="pdf-grid-container" class="pdf-grid" style="display: none;"></div>
+                
+                <!-- Full PDF Viewer (History/Matrix) -->
+                <div id="pdf-view-container" style="display: none; width: 100%; height: 100%;"></div>
+            </div>
+            <div id="split-controls-bar" style="display: none; padding: 1.25rem; background: var(--color-offwhite); border-top: 2px solid var(--color-tan); flex-direction: column; gap: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                        <div id="split-info-text" style="font-size: 0.9rem; color: var(--color-olive); font-weight: 700; margin-bottom: 0.5rem;">Pagine rilevate: --</div>
+                        
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <label style="font-size: 0.85rem; font-weight: 700;">Suddividi in tronconi:</label>
+                            <button onclick="window.addSplitRangeRow()" style="background: var(--color-sage); color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">+ Aggiungi Taglio</button>
+                        </div>
+                        
+                        <div id="split-ranges-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                            <!-- Range rows injected here -->
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-end; border-left: 1px solid var(--border-color); padding-left: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Split automatico ogni:</label>
+                            <input type="number" id="split-batch-chunk" value="1" min="1" style="width: 50px; padding: 0.3rem; border: 1px solid var(--color-tan); border-radius: 4px; font-size: 0.8rem;">
+                            <button onclick="window.applyAutoSplit()" style="background: transparent; border: 1px solid var(--color-tan); color: var(--color-olive); padding: 0.3rem 0.5rem; border-radius: 4px; font-size: 0.7rem; cursor: pointer;">Applica</button>
+                        </div>
+                        <button id="save-split-config-btn" style="background: var(--color-terracotta); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 6px rgba(197, 125, 92, 0.2);">CONFERMA TAGLI ✂️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pratica Selection Modal -->
+    <div id="pratica-selection-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 450px; height: auto;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 1.1rem; letter-spacing: 0.5px;">Gestione Pratica</h3>
+                <button class="modal-close" onclick="closePraticaModal()">×</button>
+            </div>
+            <div style="padding: 1.5rem; background: var(--bg-surface); display: flex; flex-direction: column; gap: 1.25rem;">
+                <div style="display:flex; flex-direction:column; gap: 0.5rem;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: var(--color-olive); text-transform: uppercase;">Seleziona Pratica Esistente</label>
+                    <select id="existing-pratica-select" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; background: white; font-family: inherit; font-size: 0.9rem; color: var(--text-main); cursor: pointer;"></select>
+                </div>
+                
+                <div style="display:flex; align-items: center; gap: 1rem; color: var(--border-color);">
+                    <hr style="flex:1; border:none; border-top:1px solid var(--border-color);">
+                    <span style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">oppure</span>
+                    <hr style="flex:1; border:none; border-top:1px solid var(--border-color);">
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap: 0.5rem;">
+                    <label style="font-size: 0.75rem; font-weight: 800; color: var(--color-olive); text-transform: uppercase;">Crea Nuova Pratica</label>
+                    <input type="text" id="new-pratica-input" placeholder="Es: Pratica Rossi 2024" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: inherit; font-size: 0.9rem;">
+                </div>
+
+                <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 0.5rem;">
+                    <button class="btn-cancel" onclick="closePraticaModal()" style="padding: 0.7rem 1.2rem; border-radius: 6px; border: 1px solid var(--color-coral); color: var(--color-coral); background: transparent; font-weight: 700; cursor: pointer; font-size: 0.8rem;">Annulla</button>
+                    <button id="confirm-pratica-btn" style="padding: 0.7rem 1.5rem; border-radius: 6px; border: none; background: var(--color-terracotta); color: white; font-weight: 700; cursor: pointer; font-size: 0.8rem; box-shadow: 0 4px 6px rgba(197, 125, 92, 0.2);">Avvia Analisi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js?v=3.8"></script>
+</body>
+</html>

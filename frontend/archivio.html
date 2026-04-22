@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivio Pratiche | Cloud Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.4">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body { background-color: var(--bg-main); padding: 3rem; color: var(--text-main); }
+        .vault-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--color-tan); padding-bottom: 1rem; margin-bottom: 3rem; }
+        .vault-header h1 { font-size: 2.2rem; color: var(--color-olive); margin: 0; font-weight: 700;}
+        .vault-header a.back-btn { text-decoration: none; color: var(--color-sage); font-weight: 600; padding: 0.5rem 1rem; border: 1px solid var(--color-sage); border-radius: 6px; transition: all 0.2s ease; }
+        .vault-header a.back-btn:hover { background-color: var(--color-sage); color: white; }
+        .archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; }
+        .dossier-card-wrapper { 
+            background: white; 
+            border-radius: 12px; 
+            border: 1px solid var(--border-color); 
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            box-shadow: 0 4px 12px rgba(126, 106, 86, 0.05);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .dossier-card-wrapper:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 12px 24px rgba(166, 139, 99, 0.15); 
+            border-color: var(--color-sage); 
+            background: #fffdfb;
+        }
+
+        /* Analysis Controls inside card */
+        .card-actions {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.5rem;
+            background: var(--color-offwhite);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .btn-view { background: var(--color-olive); color: white; border: none; }
+        .btn-brain { background: var(--color-terracotta); color: white; border: none; }
+        .action-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        /* General Analysis Modal Styles */
+        .analysis-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; align-items: center; justify-content: center; padding: 2rem; }
+        .analysis-modal.show { display: flex; }
+        .analysis-content { background: white; width: 100%; max-width: 1250px; max-height: 90vh; border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .analysis-header { padding: 1.5rem; border-bottom: 2px solid var(--color-tan); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); }
+        .analysis-body { flex: 1; overflow-y: auto; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
+        
+        .history-section { border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem; background: var(--bg-main); }
+        .history-item { margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; }
+        .history-item:hover { border-color: var(--color-terracotta); }
+
+        .rules-builder-row { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; padding: 1rem; background: white; border: 1px solid var(--bg-surface); border-radius: 8px; }
+        .rule-name-input { width: 250px; padding: 0.6rem; border: 1px solid var(--color-tan); border-radius: 6px; font-weight: 700; font-size: 0.85rem; color: var(--color-olive); }
+        .rule-logic-input { flex: 1; padding: 0.6rem; border: 1px solid var(--color-tan); border-radius: 6px; font-size: 0.85rem; resize: vertical; min-height: 40px; }
+        .remove-rule-btn { background: none; border: none; color: var(--color-coral); cursor: pointer; font-size: 1.2rem; padding: 0.5rem; }
+
+        .markdown-render { line-height: 1.6; color: var(--text-main); font-size: 0.95rem; }
+        .markdown-render h1, .markdown-render h2 { color: var(--color-olive); margin-top: 1.5rem; }
+        .markdown-render table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .markdown-render th, .markdown-render td { border: 1px solid var(--border-color); padding: 0.5rem; text-align: left; }
+        .markdown-render th { background: var(--bg-surface); }
+        .delete-pratica-btn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #fff;
+            border: 2px solid var(--color-tan);
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: var(--color-coral);
+            font-size: 0.8rem;
+            font-weight: 900;
+        }
+        .delete-pratica-btn:hover {
+            background: var(--color-coral);
+            color: white !important;
+            border-color: var(--color-coral);
+            transform: scale(1.1);
+        }
+        .dossier-card { 
+            padding: 2.5rem 1.5rem; 
+            text-align: center; 
+            text-decoration: none; 
+            color: var(--text-main); 
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            overflow: hidden; /* Keep content inside the card */
+        }
+        .dossier-card h3 { color: var(--color-olive); margin: 0 0 0.75rem 0; font-size: 1.3rem; font-weight: 700; }
+        .dossier-card span { font-size: 0.9rem; color: var(--color-tan); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="vault-header">
+        <h1>Archivio Pratiche Formulate</h1>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div id="search-container" style="position: relative; display: flex; align-items: center;">
+                <input type="text" id="archive-search-input" placeholder="Cerca pratica, file, categoria..." style="padding: 0.6rem 2.5rem 0.6rem 1rem; border: 1px solid var(--color-tan); border-radius: 20px; font-size: 0.85rem; width: 250px; background: white; outline: none; transition: all 0.2s;">
+                <span style="position: absolute; right: 1rem; color: var(--color-tan); font-size: 0.75rem; font-weight: bold;">CERCA</span>
+            </div>
+            <a href="index.html" class="back-btn">← Torna all'Estrattore</a>
+        </div>
+    </div>
+    
+    <div id="loading" style="text-align: center; color: var(--color-tan); font-style: italic;">
+        Sincronizzazione query database SQLite in corso...
+    </div>
+    
+    <div class="archive-grid" id="dossiers-container"></div>
+    
+    <!-- Cross Analysis Modal -->
+    <div id="analysis-modal" class="analysis-modal">
+        <div class="analysis-content">
+            <div class="analysis-header">
+                <div>
+                    <h2 id="analysis-modal-title" style="margin:0; color:var(--color-olive);">Estrazione Incrociata Dossier</h2>
+                    <span id="analysis-modal-subtitle" style="font-size:0.8rem; color:var(--color-tan);">Caricamento dati...</span>
+                </div>
+                <button onclick="closeAnalysisModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--color-tan);">&times;</button>
+            </div>
+            <div class="analysis-body">
+                <!-- Section: Presets & History Row -->
+                <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem;">
+                    <!-- Left: New Analysis Builder -->
+                    <div style="background: var(--bg-surface); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--color-tan);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <h4 style="margin:0; color:var(--color-olive);">Costruttore Analisi Multi-Punto</h4>
+                            <div style="display:flex; gap:0.5rem; align-items:center;">
+                                <select id="preset-selector" style="padding:0.4rem; border-radius:6px; border:1px solid var(--color-tan); font-size:0.8rem;"></select>
+                                <button onclick="loadSelectedPreset()" style="background:var(--color-sage); color:white; border:none; padding:0.4rem 0.8rem; border-radius:6px; font-size:0.75rem; cursor:pointer;">Carica Modello</button>
+                            </div>
+                        </div>
+                        
+                        <div id="rules-builder-container" style="max-height: 400px; overflow-y: auto; margin-bottom: 1rem;">
+                            <!-- Rule rows injected here -->
+                        </div>
+                        
+                        <button onclick="addRuleRow()" style="background:none; border:1px dashed var(--color-tan); color:var(--color-olive); width:100%; padding:0.75rem; border-radius:8px; cursor:pointer; font-size:0.8rem; font-weight:600; margin-bottom:1.5rem;">+ Aggiungi Punto di Analisi</button>
+                        
+                        <div style="display:flex; gap:1rem;">
+                            <button id="run-analysis-btn" style="flex:2; background: var(--color-terracotta); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s;">Avvia Estrazione Incrociata</button>
+                            <button onclick="saveCurrentAsPreset()" style="flex:1; background: white; color: var(--color-sage); border: 1px solid var(--color-sage); padding: 0.75rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Salva come Modello</button>
+                        </div>
+                    </div>
+
+                    <!-- Right: History -->
+                    <div id="analysis-history-section" class="history-section">
+                        <h4 style="margin-top:0; color:var(--color-terracotta);">Cronologia Pratica</h4>
+                        <div id="analysis-history-list">
+                            <!-- History items injected here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Result Display -->
+                <div id="analysis-result-container" style="display:none; background:white; border: 1px solid var(--color-sage); border-radius: 12px; padding: 2rem; margin-top: 2rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--bg-surface); padding-bottom:0.5rem;">
+                        <h4 style="margin:0; color:var(--color-sage);">Risultato Estrazione</h4>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button onclick="copyAnalysis()" style="background:var(--bg-surface); border:1px solid var(--color-tan); padding:0.3rem 0.6rem; border-radius:4px; font-size:0.7rem; cursor:pointer;">Copia Testo</button>
+                            <button id="download-word-btn" style="background:var(--color-sage); color:white; border:none; padding:0.3rem 0.6rem; border-radius:4px; font-size:0.7rem; cursor:pointer; font-weight:600;">Scarica Word (.docx)</button>
+                        </div>
+                    </div>
+                    <div id="analysis-result-md" class="markdown-render">
+                        <!-- GPT result renders here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="archivio.js?v=1.5"></script>
+</body>
+</html>

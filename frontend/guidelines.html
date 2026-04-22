@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <title>Semantic Definitions Vault</title>
+</head>
+<body>
+    <header class="app-header" style="justify-content: flex-start; gap: 2rem;">
+        <a href="index.html" style="color: var(--color-tan); text-decoration: none; font-size: 1.5rem; padding: 0.5rem;">⬅</a>
+        <div>
+            <h1>Semantic Definitions Vault</h1>
+            <p>Enforce strict operational context on OpenAI's heuristics per document type.</p>
+        </div>
+    </header>
+    <main style="padding: 2rem; max-width: 1000px; margin: 0 auto; overflow: auto; flex:1; width: 100%;">
+        <div class="panel" style="padding: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+                <h3 style="color: var(--text-main);">Global Document Definitions</h3>
+                <button id="save-btn" style="background: var(--color-terracotta); color: white; border: none; padding: 0.6rem 1.25rem; border-radius: var(--radius-md); cursor: pointer; font-weight: 600; transition: var(--transition); box-shadow: var(--shadow-soft);">Save Global Context</button>
+            </div>
+            
+            <div id="definitions-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- JS Injected grouped by Category -->
+                <p style="text-align: center; color: var(--color-tan);">Fetching system definitions...</p>
+            </div>
+        </div>
+    </main>
+    <div id="toast" class="toast hidden"></div>
+    <script src="guidelines.js"></script>
+</body>
+</html>
