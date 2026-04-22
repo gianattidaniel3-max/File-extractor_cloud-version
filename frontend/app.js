@@ -70,7 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
         batchContainer.classList.remove('collapsed');
         batchFileList.innerHTML = stagedFiles.map((item, idx) => `
             <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.8rem; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; font-weight: 500;" title="${item.file.name}">${item.file.name}</span>
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; font-weight: 500;" title="${item.file.name}">
+                    <strong style="color: var(--color-olive); margin-right: 4px;">${idx + 1}.</strong> ${item.file.name}
+                </span>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     ${item.split ? `<span style="background: var(--color-terracotta); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">TAGLI: ${item.ranges}</span>` : ''}
                     <button onclick="window.openSplitModal(${idx})" style="background: transparent; border: 1px solid var(--color-tan); color: var(--color-olive); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">
