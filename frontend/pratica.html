@@ -48,6 +48,9 @@
     <div class="vault-header">
         <div style="display: flex; align-items: center; gap: 1rem;">
             <h1 id="pratica-title">Caricamento Pratica...</h1>
+            <div style="position: relative; margin-left: 1rem;">
+                <input type="text" id="pratica-search" placeholder="Cerca tra i documenti..." style="padding: 0.5rem 1rem; border: 1px solid var(--color-tan); border-radius: 20px; font-size: 0.85rem; width: 250px; outline: none; background: rgba(255,255,255,0.7); transition: all 0.2s; display: none;">
+            </div>
             <button id="export-excel-btn" onclick="exportToCSV()" style="background: var(--color-olive); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: none; margin-bottom: 0;">Scarica Excel</button>
             <button id="full-package-btn" onclick="downloadFullPackage()" style="background: var(--color-tan); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; display: none; margin-bottom: 0;">📦 Pacchetto Completo</button>
             <button id="fullscreen-btn" onclick="document.getElementById('master-matrix-container').classList.add('master-matrix-container-fullscreen')" style="background: var(--color-sage); color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: background 0.2s; display: none; margin-bottom: 0;">Pieno Schermo</button>

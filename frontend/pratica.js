@@ -39,6 +39,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         renderMasterMatrix(praticaName);
         
+        // Initialize search
+        const searchInput = document.getElementById('pratica-search');
+        if (searchInput) {
+            searchInput.style.display = 'block';
+            searchInput.addEventListener('input', (e) => {
+                renderMasterMatrix(praticaName, e.target.value.toLowerCase());
+            });
+        }
+        
     } catch (err) {
         document.getElementById('loading').innerHTML = `<p style="color: var(--color-coral); text-align: left;">Criticità: ${err.message}</p>`;
     }
@@ -105,7 +114,7 @@ window.toggleColumn = function(index, name) {
     renderMasterMatrix(name);
 };
 
-function renderMasterMatrix(praticaName) {
+window.renderMasterMatrix = function(praticaName, filterStr = "") {
     const container = document.getElementById('master-matrix-container');
     if (window.globalBatchData.length === 0) return;
 
@@ -171,7 +180,23 @@ function renderMasterMatrix(praticaName) {
     
     html += `</tr></thead><tbody>`;
 
+    const filterMatch = (item) => {
+        if (!filterStr) return true;
+        const fileName = item.file.name.toLowerCase();
+        const meta = item.extracted.metadata || {};
+        const fields = item.extracted.fields || {};
+        
+        if (fileName.includes(filterStr)) return true;
+        if (Object.values(meta).some(v => String(v).toLowerCase().includes(filterStr))) return true;
+        if (Object.values(fields).some(v => {
+            const val = (typeof v === 'object' && v !== null && 'value' in v) ? v.value : v;
+            return String(val).toLowerCase().includes(filterStr);
+        })) return true;
+        return false;
+    };
+
     window.globalBatchData.forEach((item, index) => {
+        if (!filterMatch(item)) return;
         const meta = item.extracted.metadata || {};
         const fields = item.extracted.fields || {};
         

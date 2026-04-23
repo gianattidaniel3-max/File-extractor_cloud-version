@@ -900,6 +900,27 @@ th.collapsed-col .th-content-wrapper {
     display: block;
 }
 
+/* Practice Search Styling */
+#pratica-search {
+    border: 1px solid var(--color-tan) !important;
+    background: white !important;
+    padding: 0.6rem 1.2rem !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    color: var(--color-olive);
+    font-weight: 500;
+}
+
+#pratica-search:focus {
+    width: 350px !important;
+    border-color: var(--color-sage) !important;
+    box-shadow: 0 4px 12px rgba(131,146,122,0.15);
+}
+
+#pratica-search::placeholder {
+    color: var(--color-tan);
+    opacity: 0.7;
+}
+
 .column-option {
     display: flex;
     align-items: center;
