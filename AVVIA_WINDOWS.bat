@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 TITLE Avvio File Extractor CLOUD
 echo Inizializzazione sistema in corso...
 
