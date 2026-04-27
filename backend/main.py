@@ -307,6 +307,11 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
                 if k_lower in allowed_fields:
                     clean_fields[k_lower] = v
                     
+        # If no allowed fields were found (e.g., schema mismatch), keep whatever the LLM returned
+        if not allowed_fields:
+            # Preserve the original raw_fields structure
+            extracted_json["fields"] = raw_fields
+        else:
             extracted_json["fields"] = clean_fields
             
             # Eradicate spontaneous_fields if the LLM added it natively

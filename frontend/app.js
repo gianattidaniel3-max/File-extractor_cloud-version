@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 taxonomy: window.appSchema?.taxonomy || {},
                 expected_fields_per_type: window.appSchema?.field_schema || {}
             });
-            formData.append('extraction_schema', extractionSchema);
+            formData.append('schema', extractionSchema);
 
             console.log("Inviando fetch con timeout di 60s...");
             showToast(`🚀 Fase 1: Invio ${file.name}...`);
