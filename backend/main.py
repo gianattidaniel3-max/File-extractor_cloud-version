@@ -277,9 +277,12 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
         )
         
         meta = extracted_json.get("metadata", {})
-        label = meta.get("label", "UNKNOWN")
+        # Deep cleaning of the label and category for Windows compatibility (\r removal)
+        label = str(meta.get("label", "UNKNOWN")).strip().replace("\r", "").replace("\n", "")
+        category = str(meta.get("category", "UNKNOWN")).strip().replace("\r", "").replace("\n", "")
+        
         doc.label = label
-        doc.category = meta.get("category", "UNKNOWN")
+        doc.category = category
         
         # --- PROGRAMMATIC SCHEMA ENFORCEMENT ---
         # Force the LLM output to strictly match the taxonomy schema and flatten hallucinations
