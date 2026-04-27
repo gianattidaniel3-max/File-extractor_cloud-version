@@ -277,8 +277,39 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
         )
         
         meta = extracted_json.get("metadata", {})
-        doc.label = meta.get("label", "UNKNOWN")
+        label = meta.get("label", "UNKNOWN")
+        doc.label = label
         doc.category = meta.get("category", "UNKNOWN")
+        
+        # --- PROGRAMMATIC SCHEMA ENFORCEMENT ---
+        # Force the LLM output to strictly match the taxonomy schema and flatten hallucinations
+        import json
+        try:
+            schema_dict = json.loads(schema)
+            allowed_fields = schema_dict.get(label, [])
+            
+            raw_fields = extracted_json.get("fields", {})
+            clean_fields = {}
+            
+            # If the LLM hallucinated by nesting fields under the label name
+            if label in raw_fields and isinstance(raw_fields[label], dict):
+                raw_fields = raw_fields[label]
+                
+            # Filter to only allowed keys
+            for k, v in raw_fields.items():
+                if k in allowed_fields:
+                    clean_fields[k] = v
+                    
+            extracted_json["fields"] = clean_fields
+            
+            # Eradicate spontaneous_fields if the LLM added it natively
+            if "spontaneous_fields" in extracted_json:
+                del extracted_json["spontaneous_fields"]
+                
+        except Exception as e:
+            print(f"[SERVER] Errore durante l'enforcement dello schema: {str(e)}")
+        # ---------------------------------------
+        
         doc.extracted_data = extracted_json
         doc.status = "completed"
         db.commit()
