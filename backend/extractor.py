@@ -86,8 +86,8 @@ Analyze the provided document (Images + Text) and output a pure JSON object stri
 }
 
 CRITICAL RULES:
-1. Select the "label" against the taxonomy.
-2. Look up the chosen "label" in the provided Schema. You will see an array of field names. 
+1. Select the "label" against the "taxonomy" dictionary in the Schema.
+2. Look up the chosen "label" inside the "expected_fields_per_type" dictionary in the Schema. You will see an array of field names. 
 3. The keys inside your "fields" object MUST be EXACTLY those field names and NO OTHERS. DO NOT extract fields that are not in the schema for the chosen label. DO NOT nest the fields under the label name. The "fields" object MUST be completely flat.
 4. Every field value MUST be an object with "value" and "confidence" (0-100 estimate of accuracy).
 5. DATE TRIAGE:
