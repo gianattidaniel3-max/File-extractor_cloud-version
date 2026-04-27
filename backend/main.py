@@ -286,19 +286,25 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
         import json
         try:
             schema_dict = json.loads(schema)
-            allowed_fields = schema_dict.get(label, [])
+            # Make schema lookup case-insensitive
+            schema_dict_lower = {str(k).lower(): [str(f).lower() for f in v] for k, v in schema_dict.items()}
+            
+            label_lower = str(label).lower()
+            allowed_fields = schema_dict_lower.get(label_lower, [])
             
             raw_fields = extracted_json.get("fields", {})
             clean_fields = {}
             
-            # If the LLM hallucinated by nesting fields under the label name
-            if label in raw_fields and isinstance(raw_fields[label], dict):
-                raw_fields = raw_fields[label]
+            # If the LLM hallucinated by nesting fields under the label name (case-insensitive check)
+            nested_key = next((rk for rk in raw_fields.keys() if str(rk).lower() == label_lower and isinstance(raw_fields[rk], dict)), None)
+            if nested_key:
+                raw_fields = raw_fields[nested_key]
                 
-            # Filter to only allowed keys
+            # Filter to only allowed keys (case-insensitive)
             for k, v in raw_fields.items():
-                if k in allowed_fields:
-                    clean_fields[k] = v
+                k_lower = str(k).lower()
+                if k_lower in allowed_fields:
+                    clean_fields[k_lower] = v
                     
             extracted_json["fields"] = clean_fields
             
