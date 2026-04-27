@@ -287,36 +287,33 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
         try:
             schema_full = json.loads(schema)
             schema_dict = schema_full.get("expected_fields_per_type", schema_full)
-            # Make schema lookup case-insensitive
-            schema_dict_lower = {str(k).lower(): [str(f).lower() for f in v] for k, v in schema_dict.items() if isinstance(v, list)}
+            # Make schema lookup case-insensitive and stripped
+            schema_dict_lower = {str(k).strip().lower(): [str(f).strip().lower() for f in v] for k, v in schema_dict.items() if isinstance(v, list)}
             
-            label_lower = str(label).lower()
+            label_lower = str(label).strip().lower()
             allowed_fields = schema_dict_lower.get(label_lower, [])
             
             raw_fields = extracted_json.get("fields", {})
             clean_fields = {}
             
             # If the LLM hallucinated by nesting fields under the label name (case-insensitive check)
-            nested_key = next((rk for rk in raw_fields.keys() if str(rk).lower() == label_lower and isinstance(raw_fields[rk], dict)), None)
+            nested_key = next((rk for rk in raw_fields.keys() if str(rk).strip().lower() == label_lower and isinstance(raw_fields[rk], dict)), None)
             if nested_key:
                 raw_fields = raw_fields[nested_key]
                 
             # Filter to only allowed keys (case-insensitive)
             for k, v in raw_fields.items():
-                k_lower = str(k).lower()
+                k_lower = str(k).strip().lower()
                 if k_lower in allowed_fields:
                     clean_fields[k_lower] = v
-                    
-            # If no allowed fields were found (e.g., schema mismatch), keep whatever the LLM returned
-            if not allowed_fields:
-                # Preserve the original raw_fields structure
-                extracted_json["fields"] = raw_fields
-            else:
-                extracted_json["fields"] = clean_fields
-                
-                # Eradicate spontaneous_fields if the LLM added it natively
-                if "spontaneous_fields" in extracted_json:
-                    del extracted_json["spontaneous_fields"]
+            
+            # Apply the clean fields (ONLY if we actually found a schema, otherwise keep empty to show failure)
+            # This is the STRICT enforcement: if it's not in the schema, it's GONE.
+            extracted_json["fields"] = clean_fields
+            
+            # Eradicate spontaneous_fields if the LLM added it natively
+            if "spontaneous_fields" in extracted_json:
+                del extracted_json["spontaneous_fields"]
                 
         except Exception as e:
             print(f"[SERVER] Errore durante l'enforcement dello schema: {str(e)}")
@@ -338,7 +335,7 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
 async def extract_document(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...), 
-    extraction_schema: str = Form("{}"), 
+    schema: str = Form("{}"), 
     ai_context: str = Form(""), 
     pratica: str = Form(None),
     db: Session = Depends(get_db)
@@ -364,7 +361,7 @@ async def extract_document(
     
     background_tasks.add_task(
         run_extraction_task, 
-        doc_record.id, file_path, file.filename, extraction_schema, ai_context
+        doc_record.id, file_path, file.filename, schema, ai_context
     )
     
     return {
