@@ -202,9 +202,9 @@ def get_schemas():
     tax_path = os.path.join(os.path.dirname(__file__), "resources", "taxonomy.json")
     field_path = os.path.join(os.path.dirname(__file__), "resources", "field_schema.json")
     
-    with open(tax_path, "r", encoding="utf-8") as f:
+    with open(tax_path, "r", encoding="utf-8-sig") as f:
         taxonomy = json.load(f)
-    with open(field_path, "r", encoding="utf-8") as f:
+    with open(field_path, "r", encoding="utf-8-sig") as f:
         field_schema = json.load(f)
         
     return {"taxonomy": taxonomy, "field_schema": field_schema}
@@ -292,6 +292,8 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
             
             label_lower = str(label).strip().lower()
             allowed_fields = schema_dict_lower.get(label_lower, [])
+            
+            print(f"[FIREWALL] Label: '{label_lower}' | Campi consentiti: {len(allowed_fields)}")
             
             raw_fields = extracted_json.get("fields", {})
             clean_fields = {}
