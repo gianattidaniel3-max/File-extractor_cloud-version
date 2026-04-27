@@ -285,9 +285,10 @@ def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str,
         # Force the LLM output to strictly match the taxonomy schema and flatten hallucinations
         import json
         try:
-            schema_dict = json.loads(schema)
+            schema_full = json.loads(schema)
+            schema_dict = schema_full.get("expected_fields_per_type", schema_full)
             # Make schema lookup case-insensitive
-            schema_dict_lower = {str(k).lower(): [str(f).lower() for f in v] for k, v in schema_dict.items()}
+            schema_dict_lower = {str(k).lower(): [str(f).lower() for f in v] for k, v in schema_dict.items() if isinstance(v, list)}
             
             label_lower = str(label).lower()
             allowed_fields = schema_dict_lower.get(label_lower, [])

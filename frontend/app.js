@@ -394,7 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const aiContext = document.getElementById('ai-context-input')?.value || "";
             formData.append('ai_context', aiContext);
             
-            const extractionSchema = JSON.stringify({ taxonomy: window.appSchema?.taxonomy || {} });
+            const extractionSchema = JSON.stringify({ 
+                taxonomy: window.appSchema?.taxonomy || {},
+                expected_fields_per_type: window.appSchema?.field_schema || {}
+            });
             formData.append('extraction_schema', extractionSchema);
 
             console.log("Inviando fetch con timeout di 60s...");
