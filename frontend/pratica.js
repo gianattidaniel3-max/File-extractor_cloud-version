@@ -121,7 +121,10 @@ window.renderMasterMatrix = function(praticaName, filterStr = "") {
     const allFieldKeys = new Set();
     window.globalBatchData.forEach(item => {
         const fields = item.extracted.fields || {};
-        Object.keys(fields).forEach(k => allFieldKeys.add(k));
+        Object.keys(fields).forEach(k => {
+            const cleanK = String(k).trim().replace(/\r?\n|\r/g, "");
+            allFieldKeys.add(cleanK);
+        });
     });
     const fieldKeyArray = Array.from(allFieldKeys);
 
