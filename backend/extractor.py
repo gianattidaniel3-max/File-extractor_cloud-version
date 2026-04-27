@@ -63,7 +63,7 @@ def process_pdf_with_vision(pdf_path: str, original_filename: str = "Unknown.pdf
     # Description for taxonomy
     desc_path = os.path.join(os.path.dirname(__file__), "resources", "descriptions.json")
     try:
-        with open(desc_path, "r", encoding="utf-8") as f:
+        with open(desc_path, "r", encoding="utf-8-sig") as f:
             descriptions = f.read()
     except Exception:
         descriptions = "{}"

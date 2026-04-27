@@ -260,70 +260,102 @@ def set_api_key(payload: APIKeyPayload):
 
 from fastapi import BackgroundTasks
 
+def _normalize_key(s: str) -> str:
+    """Aggressive normalization for schema/label/field key matching across OSes.
+    Strips Windows line endings, NBSP, zero-width spaces, tabs; collapses whitespace."""
+    if s is None:
+        return ""
+    out = str(s)
+    for ch in ("\r", "\n", "\t", " ", "​", "﻿"):
+        out = out.replace(ch, " ")
+    out = " ".join(out.split())
+    return out.strip().lower()
+
+def _load_canonical_schema():
+    """Load taxonomy.json + field_schema.json from disk. Single source of truth."""
+    resources_dir = os.path.join(os.path.dirname(__file__), "resources")
+    with open(os.path.join(resources_dir, "field_schema.json"), "r", encoding="utf-8-sig") as f:
+        field_schema = json.load(f)
+    with open(os.path.join(resources_dir, "taxonomy.json"), "r", encoding="utf-8-sig") as f:
+        taxonomy = json.load(f)
+    return taxonomy, field_schema
+
 def run_extraction_task(doc_id: int, file_path: str, filename: str, schema: str, ai_context: str):
     db = SessionLocal()
     try:
         doc = db.query(Document).filter(Document.id == doc_id).first()
         if not doc: return
-        
+
         doc.status = "processing"
         db.commit()
-        
+
+        # CANONICAL schema from disk — never trust the frontend payload (Windows race condition fix).
+        # Frontend's appSchema may be null/empty if the user uploads before /api/schema resolves.
+        canonical_taxonomy, canonical_field_schema = _load_canonical_schema()
+        effective_schema_json = json.dumps({
+            "schema_type": "Strict Italian Legal Taxonomy Extraction",
+            "taxonomy": canonical_taxonomy,
+            "expected_fields_per_type": canonical_field_schema
+        }, ensure_ascii=False)
+
+        print(f"[FIREWALL] Schema canonico caricato: {len(canonical_field_schema)} labels, {sum(len(v) for v in canonical_field_schema.values())} campi totali", flush=True)
+
         extracted_json = process_pdf_with_vision(
-            pdf_path=file_path, 
+            pdf_path=file_path,
             original_filename=filename,
-            schema_json_str=schema, 
+            schema_json_str=effective_schema_json,
             ai_context=ai_context
         )
-        
+
         meta = extracted_json.get("metadata", {})
-        # Deep cleaning of the label and category for Windows compatibility (\r removal)
         label = str(meta.get("label", "UNKNOWN")).strip().replace("\r", "").replace("\n", "")
         category = str(meta.get("category", "UNKNOWN")).strip().replace("\r", "").replace("\n", "")
-        
+
         doc.label = label
         doc.category = category
-        
-        # --- PROGRAMMATIC SCHEMA ENFORCEMENT ---
-        # Force the LLM output to strictly match the taxonomy schema and flatten hallucinations
-        import json
+
+        # --- PROGRAMMATIC SCHEMA ENFORCEMENT (DISK-BACKED) ---
         try:
-            schema_full = json.loads(schema)
-            schema_dict = schema_full.get("expected_fields_per_type", schema_full)
-            # Make schema lookup case-insensitive and stripped
-            schema_dict_lower = {str(k).strip().lower(): [str(f).strip().lower() for f in v] for k, v in schema_dict.items() if isinstance(v, list)}
-            
-            label_lower = str(label).strip().lower()
+            schema_dict_lower = {
+                _normalize_key(k): [_normalize_key(f) for f in v]
+                for k, v in canonical_field_schema.items() if isinstance(v, list)
+            }
+
+            label_lower = _normalize_key(label)
             allowed_fields = schema_dict_lower.get(label_lower, [])
-            
-            print(f"[FIREWALL] Label: '{label_lower}' | Campi consentiti: {len(allowed_fields)}")
-            
+
+            print(f"[FIREWALL] Label: '{label_lower}' | Campi consentiti: {len(allowed_fields)} ({allowed_fields})", flush=True)
+
             raw_fields = extracted_json.get("fields", {})
-            clean_fields = {}
-            
-            # If the LLM hallucinated by nesting fields under the label name (case-insensitive check)
-            nested_key = next((rk for rk in raw_fields.keys() if str(rk).strip().lower() == label_lower and isinstance(raw_fields[rk], dict)), None)
+
+            # Unwrap LLM hallucination: fields nested under the label name
+            nested_key = next(
+                (rk for rk in raw_fields.keys()
+                 if _normalize_key(rk) == label_lower and isinstance(raw_fields[rk], dict)),
+                None
+            )
             if nested_key:
                 raw_fields = raw_fields[nested_key]
-                
-            # Filter to only allowed keys (case-insensitive)
+
+            clean_fields = {}
             for k, v in raw_fields.items():
-                k_lower = str(k).strip().lower()
+                k_lower = _normalize_key(k)
                 if k_lower in allowed_fields:
                     clean_fields[k_lower] = v
-            
-            # Apply the clean fields (ONLY if we actually found a schema, otherwise keep empty to show failure)
-            # This is the STRICT enforcement: if it's not in the schema, it's GONE.
+
+            if allowed_fields and raw_fields and not clean_fields:
+                print(f"[FIREWALL][WARN] Tutti i campi LLM rimossi. LLM ha restituito: {list(raw_fields.keys())}. Schema attendeva: {allowed_fields}", flush=True)
+
             extracted_json["fields"] = clean_fields
-            
-            # Eradicate spontaneous_fields if the LLM added it natively
+
             if "spontaneous_fields" in extracted_json:
                 del extracted_json["spontaneous_fields"]
-                
+
         except Exception as e:
-            print(f"[SERVER] Errore durante l'enforcement dello schema: {str(e)}")
+            import traceback
+            print(f"[SERVER] Errore durante l'enforcement dello schema: {str(e)}\n{traceback.format_exc()}", flush=True)
         # ---------------------------------------
-        
+
         doc.extracted_data = extracted_json
         doc.status = "completed"
         db.commit()
