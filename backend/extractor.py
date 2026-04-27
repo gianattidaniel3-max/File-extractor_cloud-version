@@ -82,19 +82,14 @@ Analyze the provided document (Images + Text) and output a pure JSON object stri
   "fields": {
     "<field_name_1>": {"value": "<extracted>", "confidence": 0-100},
     "<field_name_2>": {"value": "<extracted>", "confidence": 0-100}
-  },
-  "spontaneous_fields": {
-    "<extra_field_A>": {"value": "<extracted>", "confidence": 0-100},
-    "<extra_field_B>": {"value": "<extracted>", "confidence": 0-100}
   }
 }
 
 CRITICAL RULES:
 1. Select the "label" against the taxonomy.
 2. Look up the chosen "label" in the provided Schema. You will see an array of field names. 
-3. The keys inside your "fields" object MUST be EXACTLY those field names. DO NOT nest the fields under the label name. The "fields" object MUST be completely flat.
+3. The keys inside your "fields" object MUST be EXACTLY those field names and NO OTHERS. DO NOT extract fields that are not in the schema for the chosen label. DO NOT nest the fields under the label name. The "fields" object MUST be completely flat.
 4. Every field value MUST be an object with "value" and "confidence" (0-100 estimate of accuracy).
-4. SPONTANEOUS EXTRACTION: Identify any other relevant data not in the taxonomy (e.g. Total Amounts, secondary page references, extra parties) and put them in "spontaneous_fields".
 5. DATE TRIAGE:
    - "data_documento": The primary date of issuance/signature in the text.
    - "data_protocollo": The date found on rubber stamps or protocol headers (Page 1).
