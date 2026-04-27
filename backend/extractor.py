@@ -91,8 +91,9 @@ Analyze the provided document (Images + Text) and output a pure JSON object stri
 
 CRITICAL RULES:
 1. Select the "label" against the taxonomy.
-2. The "fields" MUST match the required expected_fields_per_type for that label.
-3. Every field value MUST be an object with "value" and "confidence" (0-100 estimate of accuracy).
+2. Look up the chosen "label" in the provided Schema. You will see an array of field names. 
+3. The keys inside your "fields" object MUST be EXACTLY those field names. DO NOT nest the fields under the label name. The "fields" object MUST be completely flat.
+4. Every field value MUST be an object with "value" and "confidence" (0-100 estimate of accuracy).
 4. SPONTANEOUS EXTRACTION: Identify any other relevant data not in the taxonomy (e.g. Total Amounts, secondary page references, extra parties) and put them in "spontaneous_fields".
 5. DATE TRIAGE:
    - "data_documento": The primary date of issuance/signature in the text.

@@ -121,7 +121,9 @@ window.renderMasterMatrix = function(praticaName, filterStr = "") {
     const allFieldKeys = new Set();
     window.globalBatchData.forEach(item => {
         const fields = item.extracted.fields || {};
+        const extras = item.extracted.spontaneous_fields || {};
         Object.keys(fields).forEach(k => allFieldKeys.add(k));
+        Object.keys(extras).forEach(k => allFieldKeys.add(k));
     });
     const fieldKeyArray = Array.from(allFieldKeys);
 
@@ -199,6 +201,7 @@ window.renderMasterMatrix = function(praticaName, filterStr = "") {
         if (!filterMatch(item)) return;
         const meta = item.extracted.metadata || {};
         const fields = item.extracted.fields || {};
+        const extras = item.extracted.spontaneous_fields || {};
         
         html += `<tr>
             <td class="${window.collapsedColumns.has(0) ? 'collapsed-col' : ''}"><a href="#" onclick="openPDFModal(${index}); return false;" style="color: var(--color-olive); text-decoration: underline; font-weight: 600;">${item.file.name}</a></td>
@@ -209,7 +212,7 @@ window.renderMasterMatrix = function(praticaName, filterStr = "") {
             
         fieldKeyArray.forEach((k, i) => {
             const colIdx = i + 5;
-            const entry = fields[k] || {};
+            const entry = fields[k] !== undefined ? fields[k] : (extras[k] || {});
             const val = (typeof entry === 'object' && entry !== null && 'value' in entry) ? entry.value : entry;
             const conf = (typeof entry === 'object' && entry !== null && 'confidence' in entry) ? entry.confidence : null;
             
@@ -225,7 +228,12 @@ window.renderMasterMatrix = function(praticaName, filterStr = "") {
                 }
             }
 
-            html += `<td class="${window.collapsedColumns.has(colIdx) ? 'collapsed-col' : ''}" style="${style}">${val === undefined || val === null || val === "" ? '-' : val}${indicator}</td>`;
+            let displayVal = val;
+            if (displayVal !== null && typeof displayVal === 'object') {
+                try { displayVal = JSON.stringify(displayVal); } catch (e) { displayVal = "Errore Dato"; }
+            }
+
+            html += `<td class="${window.collapsedColumns.has(colIdx) ? 'collapsed-col' : ''}" style="${style}">${displayVal === undefined || displayVal === null || displayVal === "" ? '-' : displayVal}${indicator}</td>`;
         });
         html += `</tr>`;
     });
